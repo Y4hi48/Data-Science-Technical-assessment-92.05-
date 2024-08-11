@@ -18,13 +18,11 @@ def mean_squared_error(y_true: np.ndarray, y_pred: np.ndarray) -> float:
         ValueError if numpy arrays have more than one dimension.
     """
     if y_true.ndim != 1 or y_pred.ndim != 1:
-        raise ValueError("Input arrays should be 1-dimensional.")
+        raise ValueError("Input arrays should be 1D.")
 
-    if y_true.shape != y_pred.shape:
-        raise ValueError("Input arrays should have the same shape.")
-
-    # sklearn for precision
-    return metrics.mean_squared_error(y_true, y_pred)
+    # sklearn for the precision
+    rmse: float = metrics.mean_squared_error(y_true, y_pred)
+    return rmse
 
 
 def moving_average(data: np.ndarray, window_size: int) -> np.ndarray:
@@ -38,98 +36,151 @@ def moving_average(data: np.ndarray, window_size: int) -> np.ndarray:
 
     Raises:
         ValueError if numpy arrays have more than one dimension.
+        ValueError if window_size is not a positive integer and greater than 1.
     """
     if data.ndim != 1:
-        raise ValueError("Input array should be 1-dimensional.")
-
+        raise ValueError("Input arrays should be 1D.")
     if not isinstance(window_size, int) or window_size < 1:
-        raise ValueError("Window size should be a positive integer greater than 0.")
+        raise ValueError(
+            "Window size should be a positive integerand greater than 1."
+        )
 
-    if window_size > len(data):
-        raise ValueError("Window size should not exceed the length of the data.")
-
-    result = np.convolve(data, np.ones(window_size), 'valid') / window_size
+    result: np.ndarray = np.array([])
+    for i in range(len(data) - window_size + 1):
+        result = np.append(result, np.mean(data[i : i + window_size]))
     return result
 
 
 def find_duplicates(arr: list[float]) -> list[float]:
-    """Find duplicates in a list of floats.
+    """
+    Find duplicates in a list of floats.
 
     Args:
-        arr: List of floats.
+        arr: list of floats
 
     Returns:
-        List of duplicates found in the input list.
+        list of duplicates
 
     Raises:
-        ValueError: if input is not a list of floats or integers.
+        ValueError if input is not a list.
+        ValueError if input is not a list of floats or int.
     """
+
     if not isinstance(arr, list):
         raise ValueError("Input should be a list.")
-    if not all(isinstance(x, (float, int)) for x in arr):
-        raise ValueError("Input should be a list of floats or integers.")
+    if not all(isinstance(x, float | int) for x in arr):
+        raise ValueError("Input should be a list of floats or int.")
 
-    seen = set()
-    duplicates = set()
-    for num in arr:
-        if num in seen:
-            duplicates.add(num)
+    duplicates: list[float] = []
+    first_occurence: list[float] = []
+
+    for _, val in enumerate(arr):
+        if val in first_occurence:
+            if val not in duplicates:
+                duplicates.append(val)
         else:
-            seen.add(num)
-
-    return list(duplicates)
+            first_occurence.append(val)
+    print(first_occurence)
+    print(duplicates)
+    return duplicates
 
 
 def prime_factors(n: int) -> list[int]:
     """Find all prime factors of a number n.
 
     Args:
-        n: Integer number to find prime factors of.
+        n: integer number to find prime factors of.
 
     Returns:
-        List of prime factors of n.
+        list of prime factors of n.
 
     Raises:
-        ValueError: if input is not a positive integer.
+        ValueError if input is not a positive integer.
     """
     if not isinstance(n, int) or n < 1:
         raise ValueError("Input should be a positive integer.")
 
-    factors = []
+    factors: list[int] = []
     factor = 2
     while n > 1:
-        while n % factor == 0:
+        if n % factor == 0:
             factors.append(factor)
             n //= factor
-        factor += 1
-
+        else:
+            factor += 1
     return factors
 
 
-def quicksort(arr: list[int]) -> list[int]:
-    """Sort a list of integers using the quicksort algorithm.
+def partition(arr: list[int], low: int, high: int) -> int:
+    """
+    Partition the array so that all elements smaller than the pivot are on the left
+    and all elements greater are on the right.
 
     Args:
-        arr: List of integers to be sorted
+        arr: list of integers to partition.
+        low: lower index of the array.
+        high: higher index of the array.
 
     Returns:
-        A new list containing the sorted integers
+        index of the pivot element.
+
+    """
+
+    i = low - 1
+    pivot = arr[high]
+
+    for j in range(low, high):
+        if arr[j] < pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]  # swap
+            print(arr)
+            print(i, j)
+
+    arr[i + 1], arr[high] = (
+        arr[high],
+        arr[i + 1],
+    )  # swap pivot in the correct position
+    return i + 1
+
+
+def sort(arr: list[int], low: int, high: int) -> None:
+    """
+    Sort the array using quicksort algorithm.
+
+    Args:
+        arr: list of integers to sort.
+        low: lower index of the array.
+        high: higher index of the array.
+
+    Returns:
+        None
+    """
+
+    if low < high:
+        pi = partition(arr, low, high)
+        sort(arr, low, pi - 1)
+        sort(arr, pi + 1, high)
+
+
+def quicksort(arr: list[int]) -> list[int]:
+    """
+    Sort a list of integers using quicksort algorithm.
+
+    Args:
+        arr: list of integers to sort.
+
+    Returns:
+        sorted list of integers.
 
     Raises:
-        ValueError if the input is not a list of integers
+        ValueError if input is not a list.
+        ValueError if input is not a list of integers.
     """
     if not isinstance(arr, list):
-        raise ValueError("Input must be a list")
-    
-    for element in arr:
-        if not isinstance(element, int):
-            raise ValueError("All elements in the list must be integers")
+        raise ValueError("Input should be a list.")
+    for i in arr:
+        if not isinstance(i, int):
+            raise ValueError("Input should be a list of integers.")
 
-    if len(arr) <= 1:
-        return arr
-
-    pivot = arr[len(arr) // 2]
-    left = [x for x in arr if x < pivot]
-    middle = [x for x in arr if x == pivot]
-    right = [x for x in arr if x > pivot]
-    return quicksort(left) + middle + quicksort(right)
+    sort(arr, 0, len(arr) - 1)
+    return arr
