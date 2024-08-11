@@ -1,4 +1,5 @@
 """Module containing some function for science processing."""
+
 from unidecode import unidecode
 
 
@@ -97,20 +98,20 @@ def compress_string(text: str) -> str:
     """
     if not isinstance(text, str) or any(char.isdigit() for char in text):
         raise ValueError("Wrong Inputs!! the string should not contain numbers")
-    
+
     if not text:
         return ""
-    
-    output=text[0]
+
+    output = text[0]
     counter = 1
-    for i in range(1,len(text)):
-        if text[i]==text[i-1]:
-            counter +=1
+    for i in range(1, len(text)):
+        if text[i] == text[i - 1]:
+            counter += 1
         else:
-            output+= str(counter) if counter > 1 else ""
+            output += str(counter) if counter > 1 else ""
             counter = 1
             output += text[i]
-    output+=str(counter) if counter > 1 else ""
+    output += str(counter) if counter > 1 else ""
     return output
 
 
@@ -128,11 +129,11 @@ def uncompress_string(text: str) -> str:
     """
     if not isinstance(text, str):
         raise ValueError("Input must be a string.")
-    
+
     output = ""
     letter = ""
     count = ""
-    
+
     for char in text:
         if char.isalpha() or char in r"!@#$%^&*()_+={}\[\]:;\"\'<>,.?/\\|`~ -":
             if count:
@@ -142,8 +143,8 @@ def uncompress_string(text: str) -> str:
             output += char
         elif char.isdigit():
             count += char
-    
+
     if count:
         output += letter * (int(count) - 1)
-    
+
     return output

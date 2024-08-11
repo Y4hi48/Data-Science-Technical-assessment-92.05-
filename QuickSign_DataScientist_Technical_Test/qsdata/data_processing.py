@@ -17,10 +17,12 @@ def filter_data(
     # pass
     if not isinstance(data, list):
         raise ValueError("Wrong Input!! Data must be a list")
-    
+
     for item in data:
         if not isinstance(item, dict):
-            raise ValueError("All elements in the data list must be dictionaries")
+            raise ValueError(
+                "All elements in the data list must be dictionaries"
+            )
 
     return [item for item in data if item.get(key) == value]
 
@@ -56,15 +58,19 @@ def complex_filter(
     # pass
     if not isinstance(data, list):
         raise ValueError("Data must be a list")
-    
+
     for item in data:
         if not isinstance(item, dict):
-            raise ValueError("All elements in the data list must be dictionaries")
+            raise ValueError(
+                "All elements in the data list must be dictionaries"
+            )
         if key not in item:
-            raise ValueError(f"Key '{key}' not found in one or more dictionaries")
+            raise ValueError(
+                f"Key '{key}' not found in one or more dictionaries"
+            )
         if not isinstance(item[key], int):
             raise ValueError(f"Key '{key}' must correspond to integer values")
-    
+
     return [item for item in data if item[key] > threshold]
 
 
